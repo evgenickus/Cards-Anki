@@ -2,7 +2,6 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
 from kivy.properties import StringProperty, ColorProperty
 from datetime import datetime, timedelta
-
 import crud
 
 class Menu(Screen):
@@ -37,9 +36,14 @@ class MainWidget(Screen):
 
   front = StringProperty("")
   back = StringProperty("")
+  new = StringProperty("0")
   new = StringProperty("")
+
+  underline_new = 1
   inround = StringProperty("")
+  underline_inround = 1
   studied = StringProperty(repeat_cards)
+  underline_studied = 1
   picture_link = StringProperty("")
 
 
@@ -61,12 +65,19 @@ class MainWidget(Screen):
     else:
       self.day_cards_list = self.user[3].split(",")
     self.new = str(len(self.day_cards_list))
+    # self.new = self.underline_count()
     self.inround = str(len([i for i in self.inround_cards.split(",") if i != ""]))
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
     self.all_day_cards = [i for i in self.day_cards_list + self.inround_cards.split(",") if i != ""]
     self.front = self.all_day_cards[0]
-    print(self.all_day_cards, "init")
-    
+
+  # def underline_count(self):
+  #   res = len(self.day_cards_list)
+  #   if int(self.new) > 0:
+  #     return f"[u]{res}[/u]"
+  #   else:
+  #     return str(res)
+
 
   def count_step(self):
     if self.step < 11:
@@ -92,6 +103,8 @@ class MainWidget(Screen):
         cards_dict.remove(card)
         self.day_cards_list = cards_dict
 
+  def style_back(self, back):
+    return f"[color=008eff][u]{back[0]}[/u][/color]{back[1].lower()}[color=008eff][u]{back[2]}[/u][/color]{back[3:].lower()}"
 
   def add_cards(self, card, address):
     if address == 1:
@@ -122,7 +135,6 @@ class MainWidget(Screen):
     self.update_card_data()
     self.update_card_count()
     self.all_day_cards = [i for i in self.day_cards_list + self.inround_cards.split(",") if i != ""]
-    print(self.all_day_cards, "rating")
     if len(self.all_day_cards) > 0:
       self.front = self.all_day_cards[0]
     else:
@@ -145,11 +157,7 @@ class MainWidget(Screen):
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
 
 
-    # if int(self.new) > 1:
-    #   self.new = str(int(self.new) - 1)
-    # else:
-    #   self.new = "11"
-    # self.repeat = str(int(self.repeat) + 1)
+
 
   def update_card_data(self):
     self.user = crud.get_user("default_user")
@@ -162,9 +170,12 @@ class MainWidget(Screen):
     self.ids.main_box.remove_widget(self.ids.open_button)
     self.ids.main_box.add_widget(self.ids.rating_box)
 
+  def style_back(self, back):
+    return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"  
+
   def find_word(self, letters):
     res = crud.find_word(letters)
-    self.back = str(res[0])
+    self.back = self.style_back(str(res[0]))
     self.picture_link = f"images/{res[1]}.jpg"
 
   def open_card(self):

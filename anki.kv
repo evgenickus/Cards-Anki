@@ -65,12 +65,18 @@
         CountLabel:
           text: root.new
           color: 0, 138/255, 1, 1
+          # markup: True
+          underline: root.underline_new
         CountLabel:
           text: root.inround
           color: 1, 0, 0, .7
+          # markup: True
+          underline: root.underline_inround
         CountLabel:
           text: root.studied
           color: 0, 210/255, 72/255, 1
+          # markup: True
+          underline: root.underline_studied
     Label:
       id: front_label
       size_hint: 1,.1
@@ -87,6 +93,7 @@
       size_hint: 1,.1
       id: back_label
       text: root.back
+      markup: True 
       font_size: 60
       color: app.main_color
       # canvas.before:
