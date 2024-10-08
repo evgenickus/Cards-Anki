@@ -63,20 +63,29 @@
         id: box_count
         size_hint: .3, 1
         CountLabel:
+          id: new
           text: root.new
           color: 0, 138/255, 1, 1
+          # canvas.before:
+          #   Color:
+          #     rgba: 55/255, 0, 23/255, 1
+          #   Rectangle:
+          #     size: self.size
+          #     pos: self.pos
           # markup: True
-          underline: root.underline_new
+          # underline: root.underline_new
         CountLabel:
+          id: inround
           text: root.inround
           color: 1, 0, 0, .7
           # markup: True
-          underline: root.underline_inround
+          # underline: root.underline_inround
         CountLabel:
+          id: studied
           text: root.studied
           color: 0, 210/255, 72/255, 1
           # markup: True
-          underline: root.underline_studied
+          # underline: root.underline_studied
     Label:
       id: front_label
       size_hint: 1,.1
@@ -179,17 +188,17 @@
       id: message_box
       # size_hint: 1, .3
       Label:
-        text:'повторено карточек: 11'
+        text: root.studied
         font_size: 30
         color: app.main_color
         size_hint: 1, .1
       Label:
-        text:'изучено карточек: 212'
+        text: root.studied
         color: app.main_color
         font_size: 30
         size_hint: 1, .1
       Label:
-        text:'требуется повторить 117'
+        text: root.studied
         font_size: 30
         color: app.main_color
         size_hint: 1, .1

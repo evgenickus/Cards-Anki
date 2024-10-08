@@ -4,7 +4,7 @@ import sqlite3
 
 con = sqlite3.connect("base.db")
 cur = con.cursor()
-cur.execute("CREATE TABLE IF NOT EXISTS cards(front CHAR, back CHAR, picture INT)")
+cur.execute("CREATE TABLE IF NOT EXISTS cards(front CHAR, back CHAR, picture INT, status INT)")
 cur.execute(
   """CREATE TABLE IF NOT EXISTS users(
   name CHAR,

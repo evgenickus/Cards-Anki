@@ -17,7 +17,12 @@ class Menu(Screen):
       self.manager.current = "progress"
 
 class Progress(Screen):
-  pass
+  user = crud.get_user("default_user")
+  if user is not None:
+    user_result = len([i for i in user[5].split(",") if i != ""])
+    studied = StringProperty(f"Изучено карточек: {user_result}")
+  else:
+    studied = StringProperty("")
 
 class MainWidget(Screen):
   step = 0
@@ -37,13 +42,14 @@ class MainWidget(Screen):
   front = StringProperty("")
   back = StringProperty("")
   new = StringProperty("0")
-  new = StringProperty("")
 
-  underline_new = 1
+  new = StringProperty("")
+  # underline_new = 1
   inround = StringProperty("")
-  underline_inround = 1
+  # underline_inround = 1
   studied = StringProperty(repeat_cards)
-  underline_studied = 1
+  # underline_studied = 1
+
   picture_link = StringProperty("")
 
 
@@ -70,14 +76,16 @@ class MainWidget(Screen):
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
     self.all_day_cards = [i for i in self.day_cards_list + self.inround_cards.split(",") if i != ""]
     self.front = self.all_day_cards[0]
-
-  # def underline_count(self):
-  #   res = len(self.day_cards_list)
-  #   if int(self.new) > 0:
-  #     return f"[u]{res}[/u]"
-  #   else:
-  #     return str(res)
-
+    self.init_underline()
+  
+  def init_underline(self):
+    if int(self.new) > 0:
+      self.ids.new.underline = True
+      self.ids.inround.underline = False
+    elif int(self.new) == 0:
+      self.ids.new.underline = False
+      self.ids.inround.underline = True
+    
 
   def count_step(self):
     if self.step < 11:
@@ -156,9 +164,6 @@ class MainWidget(Screen):
     self.inround = str(len([i for i in self.inround_cards.split(",") if i != ""]))
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
 
-
-
-
   def update_card_data(self):
     self.user = crud.get_user("default_user")
     self.round = self.user[1]
@@ -179,6 +184,7 @@ class MainWidget(Screen):
     self.picture_link = f"images/{res[1]}.jpg"
 
   def open_card(self):
+    self.init_underline()
     self.find_word(self.front)
     self.change_widget()
 
