@@ -17,17 +17,23 @@ class Menu(Screen):
       self.manager.current = "progress"
 
 class Progress(Screen):
-  user = crud.get_user("default_user")
-  if user is not None:
+  studied = StringProperty("")
+  def __init__(self, **kw):
+    super(Progress, self).__init__(**kw)
+    user = crud.get_user("default_user")
     user_result = len([i for i in user[5].split(",") if i != ""])
-    studied = StringProperty(f"Изучено карточек: {user_result}")
-  else:
-    studied = StringProperty("")
+    self.studied = f"Изучено карточек: {user_result}"
+
+  # if self.studied is not None:
+  # else:
+  #   user = crud.get_user("default_user")
+  #   self.studied = ""
 
 class MainWidget(Screen):
   step = 0
   round = 0
-  cards = [i[1] for i in crud.read_cards()]
+  cards_db = crud.read_cards()
+  cards = [i[1] for i in cards_db]
   user = crud.get_user("default_user")
 
   if user is not None:
@@ -42,11 +48,8 @@ class MainWidget(Screen):
   front = StringProperty("")
   back = StringProperty("")
   new = StringProperty("")
-  # underline_new = 1
   inround = StringProperty("")
-  # underline_inround = 1
   studied = StringProperty(repeat_cards)
-  # underline_studied = 1
 
   picture_link = StringProperty("")
 
@@ -59,9 +62,8 @@ class MainWidget(Screen):
       self.user = crud.get_user("default_user")
     if self.cards == []:
       crud.create_default_cards()
-      cards_db = crud.read_cards()
-      self.cards = [i[1] for i in cards_db]
-
+      self.cards_db = crud.read_cards()
+      self.cards = [i[1] for i in self.cards_db]
     self.inround_cards = self.user[4]
     self.repeat_cards = self.user[5]
     self.round = self.user[1]
