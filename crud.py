@@ -1,9 +1,19 @@
 from create_db import cur, con
 from datetime import datetime, timedelta
 
+def read_cards():
+  cur.execute("SELECT rowid, * FROM cards")
+  return cur.fetchall()
+
+
+def find_cards_by_id(id):
+  ...
+
+
 def get_words():
   cur.execute("SELECT front FROM cards")
   return cur.fetchall()
+
 
 def get_user(name):
   cur.execute(f"SELECT * FROM users WHERE name == '{name}'")
@@ -24,6 +34,7 @@ def create_default_cards():
 def find_word(letters):
   cur.execute(f"SELECT back, picture FROM cards WHERE front == '{letters}'")
   return cur.fetchone()
+
 
 def upgrade_rating(name, round, step, day_cards, repeat_cards, inround_cards):
   cur.execute(

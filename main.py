@@ -27,7 +27,7 @@ class Progress(Screen):
 class MainWidget(Screen):
   step = 0
   round = 0
-  cards = crud.get_words()
+  cards = [i[1] for i in crud.read_cards()]
   user = crud.get_user("default_user")
 
   if user is not None:
@@ -41,8 +41,6 @@ class MainWidget(Screen):
 
   front = StringProperty("")
   back = StringProperty("")
-  new = StringProperty("0")
-
   new = StringProperty("")
   # underline_new = 1
   inround = StringProperty("")
@@ -61,22 +59,31 @@ class MainWidget(Screen):
       self.user = crud.get_user("default_user")
     if self.cards == []:
       crud.create_default_cards()
-      self.cards = crud.get_words()
+      cards_db = crud.read_cards()
+      self.cards = [i[1] for i in cards_db]
+
     self.inround_cards = self.user[4]
     self.repeat_cards = self.user[5]
     self.round = self.user[1]
     self.step = self.user[2]
     if self.day_cards_list == [''] or self.day_cards_list == []:
-      self.day_cards_list = [i[0] for i in self.cards[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]]
+      self.day_cards_list = [i for i in self.cards[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]]
     else:
       self.day_cards_list = self.user[3].split(",")
     self.new = str(len(self.day_cards_list))
-    # self.new = self.underline_count()
     self.inround = str(len([i for i in self.inround_cards.split(",") if i != ""]))
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
     self.all_day_cards = [i for i in self.day_cards_list + self.inround_cards.split(",") if i != ""]
     self.front = self.all_day_cards[0]
     self.init_underline()
+
+    self.init_cards_progress()
+
+
+  def init_cards_progress(self):
+    cards = crud.read_cards()
+    cards_id = [i[0] for i in cards]
+    print(cards_id)
   
   def init_underline(self):
     if int(self.new) > 0:
@@ -161,6 +168,7 @@ class MainWidget(Screen):
 
   def update_card_count(self):
     self.new = str(len(self.day_cards_list))
+    self.init_underline()
     self.inround = str(len([i for i in self.inround_cards.split(",") if i != ""]))
     self.studied = str(len([i for i in self.repeat_cards.split(",") if i != ""]))
 
@@ -180,11 +188,12 @@ class MainWidget(Screen):
 
   def find_word(self, letters):
     res = crud.find_word(letters)
+    print(self.all_day_cards)
+    print(res)
     self.back = self.style_back(str(res[0]))
     self.picture_link = f"images/{res[1]}.jpg"
 
   def open_card(self):
-    self.init_underline()
     self.find_word(self.front)
     self.change_widget()
 
