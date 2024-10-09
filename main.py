@@ -78,14 +78,12 @@ class MainWidget(Screen):
     self.all_day_cards = [i for i in self.day_cards_list + self.inround_cards.split(",") if i != ""]
     self.front = self.all_day_cards[0]
     self.init_underline()
-
     self.init_cards_progress()
 
 
   def init_cards_progress(self):
     cards = crud.read_cards()
     cards_id = [i[0] for i in cards]
-    print(cards_id)
   
   def init_underline(self):
     if int(self.new) > 0:
@@ -202,7 +200,6 @@ class MainWidget(Screen):
 
 class AnkiApp(App):
   main_color = ColorProperty([255/255, 122/255, 0, 1])
-
   def build(self):
     sm = ScreenManager(transition=FadeTransition())
     sm.add_widget(Menu(name="menu"))
