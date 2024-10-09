@@ -10,6 +10,9 @@ cur.execute(
   name CHAR,
   round INT,
   step INT,
+  day_cards TEXT,
+  inround_cards TEXT,
+  repeat_cards TEXT,
   time DATETIME);
   """
   )
