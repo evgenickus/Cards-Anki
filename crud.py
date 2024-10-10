@@ -21,8 +21,18 @@ def update_card_status(id, status):
       status = '{status}' WHERE rowid == '{id}'""")
   con.commit()
 
+def update_step(round, step, name):
+  cur.execute(
+    f"""UPDATE users SET 
+      round = '{round}',
+      step = '{step}' WHERE name == '{name}'""")
+  con.commit()
 
-def create_default_user(name):
+def update_round_time(name, current_time):
+  cur.execute(f"UPDATE users SET time = '{current_time}' WHERE name == '{name}'")
+  con.commit()
+
+def create_user(name):
   start_time = datetime.now() - timedelta(minutes=2)
   cur.execute(f"""INSERT INTO users VALUES('{name}', '0', '0', '{start_time}' )""")
   con.commit()

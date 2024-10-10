@@ -6,8 +6,9 @@ import crud
 
 
 class Menu(Screen):
+  current_user = "default_user"
   def screens_order(self):
-    user_result = crud.get_user("default_user")
+    user_result = crud.get_user(self.current_user)
     last_action = user_result[3]
     action_time = datetime.fromisoformat(last_action)
     next_time = action_time + timedelta(minutes=2)
@@ -21,7 +22,8 @@ class Progress(Screen):
   pass
 
 class MainWidget(Screen):
-  user_db = crud.get_user("default_user")
+  current_user = "default_user"
+  user_db = crud.get_user(current_user)
   cards_db = crud.read_cards()
   step = 0
   round = 0
@@ -36,21 +38,20 @@ class MainWidget(Screen):
   picture_link = StringProperty("")
 
 
-
   def __init__(self, **kw):
     super(MainWidget, self).__init__(**kw)
     self.ids.main_box.remove_widget(self.ids.rating_box)
     self.init_users()
     self.init_cards()
+    self.round = self.user_db[1]
+    self.step = self.user_db[2]
     self.init_round_cards()
     self.front = self.round_cards[0][1]
-    self.round = self.cards_db[1]
-    self.step = self.cards_db[2]
 
   def init_users(self):
     if self.user_db == None:
-      crud.create_default_user("default_user")
-      self.user_db = crud.get_user("default_user")
+      crud.create_user(self.current_user)
+      self.user_db = crud.get_user(self.current_user)
 
   def init_cards(self):
     if self.cards_db == []:
@@ -58,7 +59,40 @@ class MainWidget(Screen):
       self.cards_db = crud.read_cards()
 
   def init_round_cards(self):
-    self.round_cards = [i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]]
+    self.round_cards = [
+      i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11 - self.step]
+    ]
+
+    # self.round_cards = [
+    #   i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]
+    # ]
+
+    # self.round_cards = [
+    #   i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11 - (self.round * 11 + self.step)]
+    # ]
+    # print(self.round * 11 + self.step, (self.round * 11 + self.step) + (11 - (self.round * 11 + self.step)))
+    # print(self.round * 11 + self.step, (self.round * 11 + self.step) + 11)
+    print(self.round * 11 + self.step, (self.round * 11 + self.step) + 11 - self.step)
+
+    print(self.round_cards)
+
+
+
+  # def init_repeat_cards(self):
+  #   easy_cards = []
+  #   good_cards = []
+  #   again_cards = []
+  #   hard_cards = []
+  #   for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]:
+  #     if i[4] == 1:
+  #       easy_cards.append(i)
+  #     elif i[4] == 2:
+  #       good_cards.append(i)
+  #     elif i[4] == 3:
+  #       again_cards.append(i)
+  #     else:
+  #       hard_cards.append(i)
+
 
   def style_back(self, back):
     return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"
@@ -82,9 +116,32 @@ class MainWidget(Screen):
 
   def get_next_card(self):
     self.round_cards.remove(self.round_cards[0])
-    self.front = self.round_cards[0][1]
+    if len(self.round_cards) > 0:
+      self.front = self.round_cards[0][1]
+    else:
+      current_time = datetime.now()
+      crud.update_round_time(
+        self.current_user,
+        current_time
+      )
+      self.manager.current = "progress"
+
+  # def count_step(self):
+  #   if self.step < 11:
+  #     self.step += 1
+  #   else:
+  #     self.step = 1
+  #     # self.step = 1
+  #     self.round += 1
+
+  def count_step(self):
+    self.step += 1
+    if self.step == 11:
+      self.step = 0
+      self.round += 1
 
   def rating(self, rating):
+    self.count_step()
     self.picture_link = ""
     self.back = ""
     self.change_widget_rating()
@@ -97,6 +154,7 @@ class MainWidget(Screen):
     elif rating == "hard":
       status = 4
     crud.update_card_status(self.round_cards[0][0], status)
+    crud.update_step(self.round, self.step, self.current_user)
     self.get_next_card()
 
 
