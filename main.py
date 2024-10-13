@@ -28,7 +28,9 @@ class MainWidget(Screen):
   step = 0
   round = 0
 
-  round_cards = str()
+  new_cards = list()
+  inround_cards = list()
+  studied_cards = list()
 
   front = StringProperty("")
   back = StringProperty("")
@@ -45,8 +47,11 @@ class MainWidget(Screen):
     self.init_cards()
     self.round = self.user_db[1]
     self.step = self.user_db[2]
-    self.init_round_cards()
-    self.front = self.round_cards[0][1]
+    self.init_new_cards()
+    self.init_other_cards()
+    self.init_count_labels()
+    self.init_underline()
+    self.front = self.new_cards[0][1]
 
   def init_users(self):
     if self.user_db == None:
@@ -58,25 +63,31 @@ class MainWidget(Screen):
       crud.create_default_cards()
       self.cards_db = crud.read_cards()
 
-  def init_round_cards(self):
-    self.round_cards = [
+  def init_new_cards(self):
+    self.new_cards = [
       i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11 - self.step]
     ]
+  
+  def init_other_cards(self):
+    for i in self.cards_db:
+      if i[4] in [1, 2]:
+        self.studied_cards.append(i)
+      elif i[4] in [3, 4]:
+        self.inround_cards.append(i)
+  
+  def init_count_labels(self):
+    self.new = str(len(self.new_cards))
+    self.inround = str(len(self.inround_cards))
+    self.studied = str(len(self.studied_cards))
 
-    # self.round_cards = [
-    #   i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]
-    # ]
 
-    # self.round_cards = [
-    #   i for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11 - (self.round * 11 + self.step)]
-    # ]
-    # print(self.round * 11 + self.step, (self.round * 11 + self.step) + (11 - (self.round * 11 + self.step)))
-    # print(self.round * 11 + self.step, (self.round * 11 + self.step) + 11)
-    print(self.round * 11 + self.step, (self.round * 11 + self.step) + 11 - self.step)
-
-    print(self.round_cards)
-
-
+  def init_underline(self):
+    if int(self.new) > 0:
+      self.ids.new.underline = True
+      self.ids.inround.underline = False
+    elif int(self.new) == 0:
+      self.ids.new.underline = False
+      self.ids.inround.underline = True
 
   # def init_repeat_cards(self):
   #   easy_cards = []
@@ -111,13 +122,13 @@ class MainWidget(Screen):
     self.ids.main_box.add_widget(self.ids.open_button)
 
   def open_card(self):
-    self.find_word(self.round_cards[0][0])
+    self.find_word(self.new_cards[0][0])
     self.change_widget_open()
 
   def get_next_card(self):
-    self.round_cards.remove(self.round_cards[0])
-    if len(self.round_cards) > 0:
-      self.front = self.round_cards[0][1]
+    self.new_cards.remove(self.new_cards[0])
+    if len(self.new_cards) > 0:
+      self.front = self.new_cards[0][1]
     else:
       current_time = datetime.now()
       crud.update_round_time(
@@ -126,13 +137,6 @@ class MainWidget(Screen):
       )
       self.manager.current = "progress"
 
-  # def count_step(self):
-  #   if self.step < 11:
-  #     self.step += 1
-  #   else:
-  #     self.step = 1
-  #     # self.step = 1
-  #     self.round += 1
 
   def count_step(self):
     self.step += 1
@@ -150,14 +154,18 @@ class MainWidget(Screen):
     elif rating == "good":
       status = 2
     elif rating == "again":
+      self.inround_cards.append(self.new_cards[0][0])
       status = 3
     elif rating == "hard":
+      self.inround_cards.append(self.new_cards[0][0])
       status = 4
-    crud.update_card_status(self.round_cards[0][0], status)
+    crud.update_card_status(self.new_cards[0][0], status)
     crud.update_step(self.round, self.step, self.current_user)
     self.get_next_card()
-
-
+    self.init_underline()
+    self.new = str(len(self.new_cards))
+    self.inround = str(len(self.inround_cards))
+    self.studied = str(len(self.studied_cards))
 
 class CardsApp(App):
   main_color = ColorProperty([255/255, 122/255, 0, 1])
