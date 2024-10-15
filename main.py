@@ -89,21 +89,6 @@ class MainWidget(Screen):
       self.ids.new.underline = False
       self.ids.inround.underline = True
 
-  # def init_repeat_cards(self):
-  #   easy_cards = []
-  #   good_cards = []
-  #   again_cards = []
-  #   hard_cards = []
-  #   for i in self.cards_db[self.round * 11 + self.step : (self.round * 11 + self.step) + 11]:
-  #     if i[4] == 1:
-  #       easy_cards.append(i)
-  #     elif i[4] == 2:
-  #       good_cards.append(i)
-  #     elif i[4] == 3:
-  #       again_cards.append(i)
-  #     else:
-  #       hard_cards.append(i)
-
 
   def style_back(self, back):
     return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"
@@ -136,6 +121,7 @@ class MainWidget(Screen):
         current_time
       )
       self.manager.current = "progress"
+      self.init_new_cards()
 
 
   def count_step(self):
@@ -150,8 +136,10 @@ class MainWidget(Screen):
     self.back = ""
     self.change_widget_rating()
     if rating == "easy":
+      self.studied_cards.append(self.new_cards[0][0])
       status = 1
     elif rating == "good":
+      self.studied_cards.append(self.new_cards[0][0])
       status = 2
     elif rating == "again":
       self.inround_cards.append(self.new_cards[0][0])
