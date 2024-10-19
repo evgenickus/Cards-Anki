@@ -11,7 +11,7 @@ class Menu(Screen):
     user_result = crud.get_user(self.current_user)
     last_action = user_result[3]
     action_time = datetime.fromisoformat(last_action)
-    next_time = action_time + timedelta(minutes=2)
+    next_time = action_time + timedelta(minutes=1)
     can_next_round = datetime.now() > next_time
     if can_next_round:
       self.manager.current = "main"
@@ -53,7 +53,6 @@ class MainWidget(Screen):
     self.init_count_labels()
     self.init_underline()
     self.init_current_card()
-    # self.front = self.current_card[1]
 
   def init_users(self):
     if self.user_db == None:
@@ -91,6 +90,37 @@ class MainWidget(Screen):
       self.ids.new.underline = False
       self.ids.inround.underline = True
 
+  def init_current_card(self):
+    if len(self.new_cards) > 0:
+      self.current_card = self.new_cards[0]
+      self.front = self.current_card[1]
+    elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
+      self.current_card = self.inround_cards[0]
+      self.front = self.current_card[1]
+
+
+  def get_next_card(self):
+    if len(self.new_cards) > 0:
+      self.count_step()
+      self.new_cards.remove(self.current_card)
+      if len(self.new_cards) > 0:
+        self.current_card =  self.new_cards[0]
+        self.front = self.current_card[1]
+
+    elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
+      self.current_card = self.inround_cards[0]
+      self.front = self.current_card[1]
+      self.inround_cards.remove(self.current_card)
+    elif len(self.new_cards) == 0 and len(self.inround_cards) == 0:
+      current_time = datetime.now()
+      crud.update_round_time(
+        self.current_user,
+        current_time
+      )
+      self.manager.current = "progress"
+      self.init_new_cards()
+    print(self.step)
+
 
   def style_back(self, back):
     return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"
@@ -112,55 +142,6 @@ class MainWidget(Screen):
     self.find_word(self.current_card[0])
     self.change_widget_open()
 
-  # def get_current_cards():
-  # if len(inround_cards) == 0 and len(new_cards) > 0:
-  #   current_card = new_cards[0]
-  #   new_cards.remove(new_cards[0])
-  # elif len(new_cards) == 0 and len(inround_cards) > 0:
-  #   current_card = inround_cards[0]
-  #   inround_cards.remove(inround_cards[0])
-
-
-  def init_current_card(self):
-    if len(self.new_cards) > 0:
-      self.count_step()
-      self.current_card = self.new_cards[0]
-      self.front = self.current_card[1]
-      self.new_cards.remove(self.new_cards[0])
-
-    elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
-      self.current_card = self.inround_cards[0]
-      self.front = self.current_card[1]
-      self.inround_cards.remove(self.inround_cards[0])
-
-
-    elif len(self.new_cards) == 0 and len(self.inround_cards) == 0:
-      current_time = datetime.now()
-      crud.update_round_time(
-        self.current_user,
-        current_time
-      )
-      self.manager.current = "progress"
-      self.init_new_cards()
-      # self.front = self.current_card[1]
-    print(self.current_card)
-    print(self.new_cards)
-    print(self.inround_cards)
-
-  # def get_next_card(self):
-  #   self.new_cards.remove(self.new_cards[0])
-  #   if len(self.new_cards) > 0:
-  #     self.front = self.new_cards[0][1]
-  #   else:
-  #     current_time = datetime.now()
-  #     crud.update_round_time(
-  #       self.current_user,
-  #       current_time
-  #     )
-  #     self.manager.current = "progress"
-  #     self.init_new_cards()
-
-
   def count_step(self):
     self.step += 1
     if self.step == 11:
@@ -168,7 +149,6 @@ class MainWidget(Screen):
       self.round += 1
 
   def rating(self, rating):
-    # self.count_step()
     self.picture_link = ""
     self.back = ""
     self.change_widget_rating()
@@ -185,9 +165,8 @@ class MainWidget(Screen):
       self.inround_cards.append(self.current_card)
       status = 4
     crud.update_card_status(self.current_card[0], status)
+    self.get_next_card()
     crud.update_step(self.round, self.step, self.current_user)
-    # self.get_next_card()
-    self.init_current_card()
     self.init_underline()
     self.new = str(len(self.new_cards))
     self.inround = str(len(self.inround_cards))
