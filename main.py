@@ -105,11 +105,11 @@ class MainWidget(Screen):
       self.new_cards.remove(self.current_card)
       if len(self.new_cards) > 0:
         self.current_card =  self.new_cards[0]
-        self.front = self.current_card[1]
-
+      elif len(self.inround_cards) > 0:
+        self.current_card =  self.inround_cards[0]
+        self.inround_cards.remove(self.current_card)
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
       self.current_card = self.inround_cards[0]
-      self.front = self.current_card[1]
       self.inround_cards.remove(self.current_card)
     elif len(self.new_cards) == 0 and len(self.inround_cards) == 0:
       current_time = datetime.now()
@@ -119,7 +119,12 @@ class MainWidget(Screen):
       )
       self.manager.current = "progress"
       self.init_new_cards()
-    print(self.step)
+    self.front = self.current_card[1]
+    print(self.current_card)
+    print(self.new_cards)
+    print(self.inround_cards)
+
+
 
 
   def style_back(self, back):
@@ -149,6 +154,7 @@ class MainWidget(Screen):
       self.round += 1
 
   def rating(self, rating):
+    # self.init_underline()
     self.picture_link = ""
     self.back = ""
     self.change_widget_rating()
@@ -168,9 +174,8 @@ class MainWidget(Screen):
     self.get_next_card()
     crud.update_step(self.round, self.step, self.current_user)
     self.init_underline()
-    self.new = str(len(self.new_cards))
-    self.inround = str(len(self.inround_cards))
-    self.studied = str(len(self.studied_cards))
+    self.init_count_labels()
+
 
 class CardsApp(App):
   main_color = ColorProperty([255/255, 122/255, 0, 1])
