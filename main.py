@@ -98,20 +98,31 @@ class MainWidget(Screen):
       self.current_card = self.inround_cards[0]
       self.front = self.current_card[1]
 
-
   def get_next_card(self):
     if len(self.new_cards) > 0:
       self.count_step()
       self.new_cards.remove(self.current_card)
-      if len(self.new_cards) > 0:
-        self.current_card =  self.new_cards[0]
-      elif len(self.inround_cards) > 0:
-        self.current_card =  self.inround_cards[0]
+      if len(self.new_cards) != 0:
+        self.current_card = self.new_cards[0]
+        self.front = self.current_card[1]
+      elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
+        self.current_card = self.inround_cards[0]
+        self.front = self.current_card[1]
         self.inround_cards.remove(self.current_card)
+      else:
+        current_time = datetime.now()
+        crud.update_round_time(
+          self.current_user,
+          current_time
+        )
+        self.manager.current = "progress"
+        self.init_new_cards()
+
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
       self.current_card = self.inround_cards[0]
+      self.front = self.current_card[1]
       self.inround_cards.remove(self.current_card)
-    elif len(self.new_cards) == 0 and len(self.inround_cards) == 0:
+    else:
       current_time = datetime.now()
       crud.update_round_time(
         self.current_user,
@@ -119,13 +130,6 @@ class MainWidget(Screen):
       )
       self.manager.current = "progress"
       self.init_new_cards()
-    self.front = self.current_card[1]
-    print(self.current_card)
-    print(self.new_cards)
-    print(self.inround_cards)
-
-
-
 
   def style_back(self, back):
     return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"
@@ -173,8 +177,8 @@ class MainWidget(Screen):
     crud.update_card_status(self.current_card[0], status)
     self.get_next_card()
     crud.update_step(self.round, self.step, self.current_user)
-    self.init_underline()
     self.init_count_labels()
+    self.init_underline()
 
 
 class CardsApp(App):
