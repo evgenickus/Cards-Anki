@@ -1,5 +1,5 @@
 from kivy.app import App
-from kivy.uix.screenmanager import Screen, ScreenManager, FadeTransition
+from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.properties import StringProperty, ColorProperty
 from datetime import datetime, timedelta
 import crud
@@ -98,6 +98,13 @@ class MainWidget(Screen):
       self.current_card = self.inround_cards[0]
       self.front = self.current_card[1]
 
+  def stop_round(self):
+    current_time = datetime.now()
+    crud.update_round_time(self.current_user, current_time)
+    self.manager.current = "progress"
+    self.init_new_cards()
+    self.init_current_card()
+
   def get_next_card(self):
     if len(self.new_cards) > 0:
       self.count_step()
@@ -108,28 +115,17 @@ class MainWidget(Screen):
       elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
-        self.inround_cards.remove(self.current_card)
       else:
-        current_time = datetime.now()
-        crud.update_round_time(
-          self.current_user,
-          current_time
-        )
-        self.manager.current = "progress"
-        self.init_new_cards()
-
+        self.stop_round()
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
-      self.current_card = self.inround_cards[0]
-      self.front = self.current_card[1]
       self.inround_cards.remove(self.current_card)
+      if len(self.inround_cards) != 0:
+        self.current_card = self.inround_cards[0]
+        self.front = self.current_card[1]
+      else:
+        self.stop_round()
     else:
-      current_time = datetime.now()
-      crud.update_round_time(
-        self.current_user,
-        current_time
-      )
-      self.manager.current = "progress"
-      self.init_new_cards()
+      self.stop_round()
 
   def style_back(self, back):
     return f"[color=008eff][u]{back[0].upper()}[/u][/color]{back[1]}[color=008eff][u]{back[2].upper()}[/u][/color]{back[3:]}"
@@ -158,7 +154,6 @@ class MainWidget(Screen):
       self.round += 1
 
   def rating(self, rating):
-    # self.init_underline()
     self.picture_link = ""
     self.back = ""
     self.change_widget_rating()
@@ -184,7 +179,7 @@ class MainWidget(Screen):
 class CardsApp(App):
   main_color = ColorProperty([255/255, 122/255, 0, 1])
   def build(self):
-    sm = ScreenManager(transition=FadeTransition())
+    sm = ScreenManager(transition=NoTransition())
     sm.add_widget(Menu(name="menu"))
     sm.add_widget(MainWidget(name="main"))
     sm.add_widget(Progress(name="progress"))
