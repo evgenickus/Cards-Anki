@@ -27,13 +27,21 @@ class MainWidget(Screen):
   cards_db = crud.read_cards()
   step = 0
   round = 0
-  NEW_CARDS_NUMBER = 5
+  NEW_CARDS_NUMBER =11
 
 
   current_card = list()
   new_cards = list()
   inround_cards = list()
   studied_cards = list()
+  LEARNING_STEP1 = 1
+  LEARNING_STEP2 = 10
+  HARD_INL = int(LEARNING_STEP2 / LEARNING_STEP1)
+  GRADUATING_INL = 1440
+  EASY_INL = 5760
+  EASE = 2,5
+
+
 
   front = StringProperty("")
   back = StringProperty("")
