@@ -41,7 +41,7 @@ def update_round_time(name, current_time):
   con.commit()
 
 def create_user(name):
-  start_time = datetime.now() - timedelta(minutes=2)
+  start_time = datetime.now() - timedelta(minutes=16)
   cur.execute(f"""INSERT INTO users VALUES('{name}', '0', '0', '{start_time}' )""")
   con.commit()
 
