@@ -134,7 +134,8 @@ class MainWidget(Screen):
       else:
         self.stop_round()
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
-      self.inround_cards.remove(self.current_card)
+      if self.ids.inround.underline:
+        self.inround_cards.remove(self.current_card)
       if len(self.inround_cards) != 0: #!!!!
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
@@ -190,8 +191,8 @@ class MainWidget(Screen):
   def easy_action(self):
     status = 1
     prestatus = crud.get_card(self.current_card[0])[4]
-    # if prestatus == 0:
-    self.count_step()
+    if not self.ids.studied.underline:
+      self.count_step()
     actiontime = datetime.now()
     interval = actiontime + timedelta(minutes=60)
     # interval = actiontime + timedelta(days=4)
@@ -200,8 +201,8 @@ class MainWidget(Screen):
   def hard_action(self):
     status = 4
     prestatus = crud.get_card(self.current_card[0])[4]
-    # if prestatus == 0:
-    self.count_step()
+    if not self.ids.studied.underline:
+      self.count_step()
     actiontime = datetime.now()
     interval = actiontime + timedelta(minutes=45)
     # interval = actiontime + timedelta(days=3)
@@ -211,8 +212,6 @@ class MainWidget(Screen):
     self.inround_cards.append(self.current_card)
     status = 3
     prestatus = crud.get_card(self.current_card[0])[4]
-    # if prestatus == 0:
-    #   self.count_step()
     actiontime = datetime.now()
     interval = actiontime
     crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
@@ -226,10 +225,8 @@ class MainWidget(Screen):
       interval = actiontime
       crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
     elif prestatus in [2, 3]:
-      self.count_step()
-
-      # if prestatus == 2:
-      #   self.count_step()
+      if not self.ids.studied.underline:
+        self.count_step()
       status = 5
       interval = actiontime + timedelta(minutes=15)
       # interval = actiontime + timedelta(days=1)
