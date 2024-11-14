@@ -8,6 +8,7 @@ def read_cards():
 
 def read_round_cards():
   current_time = datetime.now()
+  print(current_time)
   cur.execute(f"""SELECT rowid, * FROM cards WHERE interval > 0 and interval < '{current_time}'""")
   return cur.fetchall()
 

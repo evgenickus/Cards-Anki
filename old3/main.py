@@ -4,18 +4,10 @@ from kivy.properties import StringProperty, ColorProperty
 from datetime import datetime, timedelta
 import crud
 
-count_one = 0
-count_two = 0
-count_tree = 0
-
-def update_count():
-  cards_db = crud.read_cards()
-  print(cards_db)
 
 class Menu(Screen):
   current_user = "default_user"
   def screens_order(self):
-    global count_one, count_two, count_tree, update_count
     user_result = crud.get_user(self.current_user)
     last_action = user_result[3]
     action_time = datetime.fromisoformat(last_action)
@@ -25,7 +17,6 @@ class Menu(Screen):
       self.manager.current = "main"
     else:
       self.manager.current = "progress"
-      update_count()
 
 class Progress(Screen):
   pass
@@ -36,13 +27,14 @@ class MainWidget(Screen):
   cards_db = crud.read_cards()
   step = 0
   round = 0
-  NEW_CARDS_NUMBER = 11
+  NEW_CARDS_NUMBER = 5
 
 
   current_card = list()
   new_cards = list()
   inround_cards = list()
   studied_cards = list()
+
   LEARNING_STEP1 = 1
   LEARNING_STEP2 = 10
   HARD_INL = int(LEARNING_STEP2 / LEARNING_STEP1)
@@ -103,7 +95,7 @@ class MainWidget(Screen):
       self.ids.inround.underline = False
       self.ids.studied.underline = True
 
-  
+
   def init_new_cards(self):
     self.new_cards = [
       i for i in self.cards_db[
@@ -127,34 +119,35 @@ class MainWidget(Screen):
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
       self.current_card = self.inround_cards[0]
       self.front = self.current_card[1]
-    elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
-      self.current_card = self.studied_cards[0]
-      self.front = self.current_card[1]
 
 
   def get_next_card(self):
     if len(self.new_cards) > 0:
+      self.new_cards.remove(self.current_card)
       if len(self.new_cards) != 0:
         self.current_card = self.new_cards[0]
         self.front = self.current_card[1]
       elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
-      elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+      elif (len(self.new_cards) == 0 and len(self.inround_cards) == 0) and len(self.studied_cards) > 0:
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
       else:
         self.stop_round()
     elif len(self.new_cards) == 0 and len(self.inround_cards) > 0:
-      if len(self.inround_cards) != 0:
+      if self.ids.inround.underline:
+        self.inround_cards.remove(self.current_card)
+      if len(self.inround_cards) != 0: #!!!!
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
-      elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+      elif (len(self.new_cards) == 0 and len(self.inround_cards) == 0) and len(self.studied_cards) > 0:
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
       else:
         self.stop_round()
     elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+      self.studied_cards.remove(self.current_card)
       if len(self.studied_cards) != 0:
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
@@ -162,6 +155,7 @@ class MainWidget(Screen):
         self.stop_round()
     else:
       self.stop_round()
+
 
   def stop_round(self):
     current_time = datetime.now()
@@ -199,51 +193,29 @@ class MainWidget(Screen):
   def easy_action(self):
     status = 1
     prestatus = crud.get_card(self.current_card[0])[4]
-    if prestatus == 0:
-      self.new_cards.remove(self.current_card)
-      self.count_step()
-    elif prestatus in [1, 5]:
-      self.studied_cards.remove(self.current_card)
-    else:
-      self.inround_cards.remove(self.current_card)
+    if not self.ids.studied.underline:
       self.count_step()
     actiontime = datetime.now()
     interval = actiontime + timedelta(minutes=60)
+    # interval = actiontime + timedelta(days=4)
     crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
 
   def hard_action(self):
+    status = 4
     prestatus = crud.get_card(self.current_card[0])[4]
+    if not self.ids.studied.underline:
+      self.count_step()
     actiontime = datetime.now()
-    interval = actiontime
-    if prestatus == 0:
-      status = 3
-      self.new_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
-    elif prestatus in [1, 5]:
-      status = 4
-      self.studied_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
-    else:
-      status = 4
-      self.inround_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
+    interval = actiontime + timedelta(minutes=45)
+    # interval = actiontime + timedelta(days=3)
     crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
 
-
   def again_action(self):
+    self.inround_cards.append(self.current_card)
+    status = 3
     prestatus = crud.get_card(self.current_card[0])[4]
     actiontime = datetime.now()
-    status = 3
     interval = actiontime
-    if prestatus == 0:
-      self.new_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
-    elif prestatus == 5:
-      self.studied_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
-    else:
-      self.inround_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
     crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
 
   def good_action(self):
@@ -251,29 +223,16 @@ class MainWidget(Screen):
     actiontime = datetime.now()
     if prestatus == 0:
       status = 2
-      self.new_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
       interval = actiontime
       crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
-    elif prestatus in [2, 4]:
+    elif prestatus in [2, 3]:
+      if not self.ids.studied.underline:
+        self.count_step()
       status = 5
       interval = actiontime + timedelta(minutes=15)
+      # interval = actiontime + timedelta(days=1)
       crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
-      self.inround_cards.remove(self.current_card)
-      self.count_step()
-    elif prestatus == 3:
-      status = 2
-      self.inround_cards.remove(self.current_card)
-      self.inround_cards.append(self.current_card)
-      interval = actiontime
-      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
-    elif prestatus == 5:
-      status = 5
-      interval = actiontime + timedelta(minutes=15)
-      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
-      self.studied_cards.remove(self.current_card)
-
-
 
 
 
