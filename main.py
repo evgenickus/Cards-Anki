@@ -48,7 +48,7 @@ class MainWidget(Screen):
   HARD_INL = int(LEARNING_STEP2 / LEARNING_STEP1)
   GRADUATING_INL = 1440
   EASY_INL = 5760
-  EASE = 2,5
+  EASY = 2.5
 
 
 
@@ -219,15 +219,17 @@ class MainWidget(Screen):
       status = 3
       self.new_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
+      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
     elif prestatus in [1, 5]:
       status = 4
       self.studied_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
-    else:
-      status = 4
+      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
+    elif prestatus == 3:
+      status = 3
       self.inround_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
-    crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
+      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
 
 
   def again_action(self):
@@ -238,7 +240,7 @@ class MainWidget(Screen):
     if prestatus == 0:
       self.new_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
-    elif prestatus == 5:
+    elif prestatus in [1, 5]:
       self.studied_cards.remove(self.current_card)
       self.inround_cards.append(self.current_card)
     else:
@@ -255,6 +257,12 @@ class MainWidget(Screen):
       self.inround_cards.append(self.current_card)
       interval = actiontime
       crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)
+    elif prestatus == 1:
+      status = 2
+      self.studied_cards.remove(self.current_card)
+      self.inround_cards.append(self.current_card)
+      interval = actiontime
+      crud.update_card_status(self.current_card[0], status, prestatus, actiontime, interval)    
     elif prestatus in [2, 4]:
       status = 5
       interval = actiontime + timedelta(minutes=15)
