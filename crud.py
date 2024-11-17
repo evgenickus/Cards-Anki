@@ -35,13 +35,17 @@ def update_step(round, step, name):
       step = '{step}' WHERE name == '{name}'""")
   con.commit()
 
-def update_round_time(name, current_time):
-  cur.execute(f"UPDATE users SET time = '{current_time}' WHERE name == '{name}'")
+def update_round_time(name, current_time, status):
+  cur.execute(f"UPDATE users SET time = '{current_time}', start_new_cards = '{status}' WHERE name == '{name}'")
+  con.commit()
+
+def update_start_new_cards(name, status):
+  cur.execute(f"UPDATE users SET start_new_cards = '{status}' WHERE name == '{name}'")
   con.commit()
 
 def create_user(name):
   start_time = datetime.now() - timedelta(minutes=16)
-  cur.execute(f"""INSERT INTO users VALUES('{name}', '0', '0', '{start_time}' )""")
+  cur.execute(f"""INSERT INTO users VALUES('{name}', '0', '0', '{start_time}', '1' )""")
   con.commit()
 
 

@@ -20,7 +20,8 @@ cur.execute(
   name CHAR,
   round INT,
   step INT,
-  time DATETIME);
+  time DATETIME,
+  start_new_cards INT);
   """
   )
 

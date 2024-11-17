@@ -105,11 +105,14 @@ class MainWidget(Screen):
 
   
   def init_new_cards(self):
-    self.new_cards = [
-      i for i in self.cards_db[
-        self.round * self.NEW_CARDS_NUMBER + self.step : (self.round * self.NEW_CARDS_NUMBER + self.step) + self.NEW_CARDS_NUMBER - self.step
-      ] if i[4] == 0
-    ]
+    if self.user_db[4] == 1:
+      self.new_cards = [
+        i for i in self.cards_db[
+          self.round * self.NEW_CARDS_NUMBER + self.step : (self.round * self.NEW_CARDS_NUMBER + self.step) + self.NEW_CARDS_NUMBER - self.step
+        ] if i[4] == 0
+      ]
+    else:
+      self.new_cards = list()
 
   def init_other_cards(self):
     round_cards = crud.read_round_cards()
@@ -141,6 +144,7 @@ class MainWidget(Screen):
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
       elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+        crud.update_start_new_cards(self.current_user, 0)
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
       else:
@@ -150,11 +154,13 @@ class MainWidget(Screen):
         self.current_card = self.inround_cards[0]
         self.front = self.current_card[1]
       elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+        crud.update_start_new_cards(self.current_user, 0)
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
       else:
         self.stop_round()
     elif len(self.new_cards) == 0 and len(self.inround_cards) == 0 and len(self.studied_cards) > 0:
+      crud.update_start_new_cards(self.current_user, 0)
       if len(self.studied_cards) != 0:
         self.current_card = self.studied_cards[0]
         self.front = self.current_card[1]
@@ -165,7 +171,7 @@ class MainWidget(Screen):
 
   def stop_round(self):
     current_time = datetime.now()
-    crud.update_round_time(self.current_user, current_time)
+    crud.update_round_time(self.current_user, current_time, 1)
     self.manager.current = "progress"
     self.init_new_cards()
     self.init_current_card()
