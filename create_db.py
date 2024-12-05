@@ -10,7 +10,7 @@ cur.execute(
     back CHAR,
     picture INT,
     status INT,
-    prestatus INT,
+    studied INT,
     actiontime DATETIME,
     interval INT);
   """

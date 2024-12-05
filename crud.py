@@ -19,11 +19,11 @@ def get_card(id):
   cur.execute((f"SELECT rowid, * FROM cards WHERE rowid == '{id}'"))
   return cur.fetchone()
 
-def update_card_status(id, status, prestatus, actiontime, interval):
+def update_card_status(id, status, studied, actiontime, interval):
   cur.execute(
     f"""UPDATE cards SET 
       status = '{status}',
-      prestatus = '{prestatus}',
+      studied = '{studied}',
       actiontime = '{actiontime}',
       interval = '{interval}' WHERE rowid == '{id}'""")
   con.commit()
