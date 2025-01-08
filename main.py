@@ -10,12 +10,11 @@ count_tree = 0
 
 def update_count():
   cards_db = crud.read_cards()
-  print(cards_db)
+  return cards_db
 
 class Menu(Screen):
   current_user = "default_user"
   def screens_order(self):
-    global count_one, count_two, count_tree, update_count
     user_result = crud.get_user(self.current_user)
     last_action = user_result[3]
     action_time = datetime.fromisoformat(last_action)
@@ -23,12 +22,14 @@ class Menu(Screen):
     can_next_round = datetime.now() > next_time
     if can_next_round:
       self.manager.current = "main"
-      update_count()
     else:
       self.manager.current = "progress"
 
 class Progress(Screen):
-  pass
+  global update_count
+  cards = update_count()
+  print(cards)
+  card = StringProperty('cards[1][1]')
 
 class MainWidget(Screen):
   current_user = "default_user"
@@ -116,10 +117,11 @@ class MainWidget(Screen):
 
   def init_other_cards(self):
     round_cards = crud.read_round_cards()
+    print(round_cards)
     for i in round_cards:
-      if i[4] in [1, 4, 5]:
+      if i[4] in [1, 5]:
         self.studied_cards.append(i)
-      elif i[4] in [2, 3]:
+      elif i[4] in [2, 3, 4]:
         self.inround_cards.append(i)
   
 
@@ -204,7 +206,8 @@ class MainWidget(Screen):
 
   def easy_action(self):
     status = 1
-    prestatus = crud.get_card(self.current_card[0])[4]
+    card_db = crud.get_card(self.current_card[0])
+    prestatus = card_db[4]
     if prestatus == 0:
       self.new_cards.remove(self.current_card)
       self.count_step()
@@ -212,7 +215,8 @@ class MainWidget(Screen):
       self.studied_cards.remove(self.current_card)
     else:
       self.inround_cards.remove(self.current_card)
-      self.count_step()
+      if card_db[5] == 0:
+        self.count_step()
     actiontime = datetime.now()
     interval = actiontime + timedelta(minutes=60)
     crud.update_card_status(self.current_card[0], status, 1, actiontime, interval)
