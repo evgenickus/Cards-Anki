@@ -160,19 +160,23 @@
       id: message_box
       # size_hint: 1, .3
       Label:
-        text: root.card
-        font_size: 30
+        # text: root.card
+        text: "На сегодня все"
+        font_size: (root.width + root.height)/35
         color: app.main_color
         size_hint: 1, .1
       Label:
-        text: "root.studied"
-        color: app.main_color
-        font_size: 30
-        size_hint: 1, .1
-      Label:
-        text: "root.studied"
-        font_size: 30
+        text: "карточки изучены"
+        font_size: (root.width + root.height)/35
         color: app.main_color
         size_hint: 1, .1
-
-  
+      # Label:
+      #   text: "root.studied"
+      #   color: app.main_color
+      #   font_size: 30
+      #   size_hint: 1, .1
+      # Label:
+      #   text: "root.studied"
+      #   font_size: 30
+      #   color: app.main_color
+      #   size_hint: 1, .1
