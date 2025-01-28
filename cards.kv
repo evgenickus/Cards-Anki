@@ -142,7 +142,7 @@
       Rectangle:
         size: root.size
 
-    BoxLayout:    # 9% --------------------------------------------
+    BoxLayout:
       size_hint: 1, .09
       MenuButton:
         id: back_menu
@@ -155,28 +155,12 @@
         text: "МЕНЮ"
         on_press: root.manager.current = "menu"
 
-    BoxLayout: # 10%
+    BoxLayout:
       orientation: 'vertical'
       id: message_box
-      # size_hint: 1, .3
       Label:
-        # text: root.card
-        text: "На сегодня все"
+        text: "На сегодня все\nкарточки изучены"
         font_size: (root.width + root.height)/35
         color: app.main_color
         size_hint: 1, .1
-      Label:
-        text: "карточки изучены"
-        font_size: (root.width + root.height)/35
-        color: app.main_color
-        size_hint: 1, .1
-      # Label:
-      #   text: "root.studied"
-      #   color: app.main_color
-      #   font_size: 30
-      #   size_hint: 1, .1
-      # Label:
-      #   text: "root.studied"
-      #   font_size: 30
-      #   color: app.main_color
-      #   size_hint: 1, .1
+        halign: "center"
